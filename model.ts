@@ -32,3 +32,4 @@ export type BookItem = {
   causedAt: string; // 購入日時
   fileName: string; // DLCファイル名
 };
+export type BookMap = Map<DatabaseId, BookItem>;

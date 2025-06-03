@@ -1,7 +1,21 @@
 /**
+ * 個別書籍のID
+ * https://techbookfest.org/product/${DatabaseId} としてアクセス可能
+ */
+export type DatabaseId = string;
+
+type BookShelfItemId = string;
+type OrganizationId = string;
+type ImageId = string;
+
+type fileName = string;
+type ProductDownloadContentId = string;
+type MarketHandshakeId = string;
+
+/**
  * 書籍一覧画面のレスポンス (読み込み中の状態)
  */
-export type ResponseWhileLoading = {
+export type GetMeViewerQueryResponse = {
   data: {
     viewer: {
       id: string;
@@ -16,7 +30,17 @@ export type ResponseWhileLoading = {
  * 書籍一覧画面のレスポンス (読み込み完了の状態)
  * ページネーションの状態は pageInfo.hasNextPage で判定
  */
-export type BookShelfItemConnection = {
+export type BookShelfQueryResponse = {
+  data: {
+    viewer: {
+      id: string;
+      bookShelfItems: BookShelfItemConnection;
+      __typename: "User";
+    };
+  };
+};
+
+type BookShelfItemConnection = {
   pageInfo: PageInfoWithNext | PageInfoInEnd;
   edges: BookShelfItemEdge[];
   __typename: "BookShelfItemConnection";
@@ -67,22 +91,12 @@ type ProductInfo = {
 };
 
 /**
- * 個別書籍のID
- * https://techbookfest.org/product/${DatabaseId} としてアクセス可能
- */
-export type DatabaseId = string;
-
-type BookShelfItemId = string;
-type OrganizationId = string;
-type ImageId = string;
-
-/**
  * 書籍一覧画面にて書籍をクリックした際のレスポンス
  */
-export type BookShelfItem = {
+export type BookShelfItemDetailQueryResponse = {
   data: {
     node: {
-      id: "BookShelfItem:7168VYamRb85TvAtCFQ53G";
+      id: `BookShelfItem:${BookShelfItemId}`;
       cause: "MARKET" | "EVENT"; // 現地購入なら"EVENT"、オンラインマーケット購入なら"MARKET"
       causedAt: string; //ISO 8601形式の購入日時
       product: ProductInfo & { downloadContent: ProductDownloadContent };
@@ -95,7 +109,7 @@ export type BookShelfItem = {
 /**
  * ダウンロードコンテンツの情報
  */
-export type ProductDownloadContent = {
+type ProductDownloadContent = {
   id: `ProductDownloadContent:${ProductDownloadContentId}`;
   fileName: `${fileName}.pdf`;
   downloadURL: `/api/product-dlc/${ProductDownloadContentId}/download`;
@@ -111,7 +125,3 @@ type MarketHandshake = {
   };
   __typename: "MarketHandshake";
 };
-
-type fileName = string;
-type ProductDownloadContentId = string;
-type MarketHandshakeId = string;

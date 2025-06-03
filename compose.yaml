@@ -4,17 +4,20 @@ services:
     command: >
       npx -y playwright@1.52.0 run-server --port 3000 --host 0.0.0.0
     ports:
-      - "3000:3000"  # Playwright WS
-      - "9222:9222"  # Chrome DevTools
+      - "3000:3000"  # Playwright server port
     environment:
       - DISPLAY=${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - $HOME/.Xauthority:/home/pwuser/.Xauthority:ro
+      - .:/app:rw
     network_mode: bridge
     user: pwuser
     working_dir: /home/pwuser
     init: true
     ipc: host
-    restart: unless-stopped
+    security_opt:
+      - seccomp:unconfined
+    restart: "no"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
-  
