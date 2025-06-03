@@ -1,0 +1,20 @@
+services:
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.52.0
+    command: >
+      npx -y playwright@1.52.0 run-server --port 3000 --host 0.0.0.0
+    ports:
+      - "3000:3000"  # Playwright WS
+      - "9222:9222"  # Chrome DevTools
+    environment:
+      - DISPLAY=${DISPLAY}
+    network_mode: bridge
+    user: pwuser
+    working_dir: /home/pwuser
+    init: true
+    ipc: host
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  
