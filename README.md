@@ -7,7 +7,7 @@
 - docker / docker-compose
 - Node.js, npm
 
-スクレイピングに用いているplaywrightの導入のためdockerを使用します。すでにローカル環境にplaywrightがある場合、環境変数`FORCE_DOWNLOAD_BOOKS=0`の指定で切り替え可能です。
+スクレイピングに用いているplaywrightの導入のためdockerを使用します。すでにローカル環境にplaywrightがある場合、環境変数`USE_DOCKER_BROWSER=0`の指定により切り替え可能です。
 
 ## How to use
 
