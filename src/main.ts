@@ -1,3 +1,7 @@
+import "dotenv/config";
+import { mkdirSync } from "fs";
+import path from "path";
+
 import { chromium } from "playwright";
 
 import { BASE_URL, makeFlowContext } from "./model";
@@ -13,10 +17,6 @@ import type {
 } from "./model";
 import type { BookShelfItemDetailQueryResponse, BookShelfQueryResponse, DatabaseId } from "./responseSchema";
 import type { Page } from "playwright";
-
-import "dotenv/config";
-import { mkdirSync } from "fs";
-import path from "path";
 
 const savePath = "./downloads/";
 
