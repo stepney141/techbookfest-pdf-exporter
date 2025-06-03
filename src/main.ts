@@ -123,37 +123,44 @@ const captureBooks = async (page: LoggedInContinuingCtx): Promise<[LoggedInCompl
   const allBookLocators = page.locator(XPATH.allBooks);
   await allBookLocators.last().waitFor();
 
-  page.on("response", (response) => {
-    if (response.url().includes("operationName=BookShelfItemDetailQuery")) {
-      (async () => {
-        const json: BookShelfItemDetailQueryResponse = await response.json();
-        if (json.data?.node?.product?.downloadContent) {
-          const book = json.data.node;
-          const databaseId = book.product.databaseID;
-          const bookItem: BookItem = {
-            id: databaseId,
-            title: book.product.name,
-            organizationName: book.product.organization.name,
-            causedAt: book.causedAt,
-            fileName: book.product.downloadContent?.fileName
-          };
-          bookMap.set(databaseId, bookItem);
-        }
-        console.log(`${json.data?.node?.product?.name} by ${json.data?.node?.product?.organization.name}`);
-      })();
-    }
-  });
-
   for (const loc of (await allBookLocators.all()).reverse()) {
     await loc.click();
 
-    const downloadPromise = page.waitForEvent("download");
-    await page.getByText("ダウンロード").click();
-    const download = await downloadPromise;
+    const responsePromise = page.waitForResponse((response) =>
+      response.url().includes("operationName=BookShelfItemDetailQuery")
+    );
 
-    const downloadPath = path.join(savePath, download.suggestedFilename());
-    await download.saveAs(downloadPath);
-    console.log(`Downloaded: ${downloadPath}`);
+    const response = await responsePromise;
+    const json: BookShelfItemDetailQueryResponse = await response.json();
+
+    if (json.data?.node?.product?.downloadContent) {
+      const book = json.data.node;
+      const databaseId = book.product.databaseID;
+      const bookItem: BookItem = {
+        id: databaseId,
+        title: book.product.name,
+        organizationName: book.product.organization.name,
+        causedAt: book.causedAt,
+        fileName: book.product.downloadContent?.fileName
+      };
+      bookMap.set(databaseId, bookItem);
+
+      console.log(`${book.product.name} by ${book.product.organization.name}`);
+
+      const downloadPromise = page.waitForEvent("download");
+      await page.getByText("ダウンロード").click();
+      const download = await downloadPromise;
+
+      // Construct filename with databaseId prefix
+      const originalFilename = download.suggestedFilename();
+      const filenameWithDatabaseId = `${databaseId}_${originalFilename}`;
+      const downloadPath = path.join(savePath, filenameWithDatabaseId);
+
+      await download.saveAs(downloadPath);
+      console.log(`Downloaded: ${downloadPath}`);
+    } else {
+      console.log(`Skipping book without download content`);
+    }
 
     await loc.press("Escape");
   }
