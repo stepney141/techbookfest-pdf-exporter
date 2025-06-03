@@ -150,9 +150,11 @@ const captureBooks = async (page: LoggedInContinuingCtx): Promise<[LoggedInCompl
     const downloadPromise = page.waitForEvent("download");
     await page.getByText("ダウンロード").click();
     const download = await downloadPromise;
-    const downloadPath = path.join(savePath, download.suggestedFilename());
 
+    const downloadPath = path.join(savePath, download.suggestedFilename());
     await download.saveAs(downloadPath);
+    console.log(`Downloaded: ${downloadPath}`);
+
     await loc.press("Escape");
   }
 
