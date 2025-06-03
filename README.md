@@ -14,7 +14,7 @@
 1. `docker-compose up -d` でブラウザ起動
 2. `npm install`
 3. `.env` に環境変数を記述
-4. `npx tsx main.ts` で実行
+4. `npx tsx src/main.ts` で実行
 
 PDFファイルはデフォルトで `./downloads/` に保存されます。
 
