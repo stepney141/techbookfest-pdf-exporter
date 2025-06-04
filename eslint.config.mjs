@@ -90,6 +90,7 @@ export default tseslint.config(
       "functional/immutable-data": ["warn", { ignoreImmediateMutation: true, ignoreMapsAndSets: true }],
       "functional/no-throw-statements": ["warn", { allowToRejectPromises: true }],
       "functional/no-class-inheritance": ["warn", { ignoreIdentifierPattern: "Error" }],
+      "functional/no-mixed-types": "warn",
       "functional/no-loop-statements": "off",
       "functional/no-conditional-statements": "off",
       "functional/no-expression-statements": "off",

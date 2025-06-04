@@ -4,6 +4,7 @@ import path from "path";
 
 import { chromium } from "playwright";
 
+import { writeCsvFile, BOOK_CSV_MAPPERS } from "./csv";
 import { BASE_URL, makeFlowContext } from "./model";
 
 import type {
@@ -19,6 +20,7 @@ import type { BookShelfItemDetailQueryResponse, BookShelfQueryResponse, Database
 import type { Page } from "playwright";
 
 const savePath = "./downloads/";
+const csvFileName = "book_list.csv";
 
 const email = process.env.EMAIL;
 const password = process.env.PASSWORD;
@@ -136,15 +138,6 @@ const captureBooks = async (page: LoggedInContinuingCtx): Promise<[LoggedInCompl
     if (json.data?.node?.product?.downloadContent) {
       const book = json.data.node;
       const databaseId = book.product.databaseID;
-      const bookItem: BookItem = {
-        id: databaseId,
-        title: book.product.name,
-        organizationName: book.product.organization.name,
-        causedAt: book.causedAt,
-        fileName: book.product.downloadContent?.fileName
-      };
-      bookMap.set(databaseId, bookItem);
-
       console.log(`${book.product.name} by ${book.product.organization.name}`);
 
       const downloadPromise = page.waitForEvent("download");
@@ -158,6 +151,15 @@ const captureBooks = async (page: LoggedInContinuingCtx): Promise<[LoggedInCompl
 
       await download.saveAs(downloadPath);
       console.log(`Downloaded: ${downloadPath}`);
+
+      const bookItem: BookItem = {
+        id: databaseId,
+        title: book.product.name,
+        organizationName: book.product.organization.name,
+        causedAt: book.causedAt,
+        fileName: filenameWithDatabaseId
+      };
+      bookMap.set(databaseId, bookItem);
     } else {
       console.log(`Skipping book without download content`);
     }
@@ -197,6 +199,11 @@ const captureBooks = async (page: LoggedInContinuingCtx): Promise<[LoggedInCompl
         `Mismatch in book count: expected ${bookNumber}, but captured ${bookMap.size}. Run the script again.`
       );
     }
+
+    const bookItems = Array.from(bookMap.values());
+    const csvFilePath = path.join(savePath, csvFileName);
+    await writeCsvFile(csvFilePath, bookItems, BOOK_CSV_MAPPERS);
+    console.log(`CSV file exported: ${csvFilePath}`);
 
     await context.close();
     await browser.close();
